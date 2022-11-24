@@ -22,7 +22,12 @@ class Transaction {
         try {
             return await contract.tokenInterface.parseTransaction({ data: txInputData })
         } catch (error) {
-            console.log("Error decoding txn input data ", error)
+
+            // This means that the ABI used does not support the method called in the transaction
+            // Ignore all transaction that don't have supported methods 
+
+
+            // console.log("Error decoding txn input data ", error)
         }
     }
 }

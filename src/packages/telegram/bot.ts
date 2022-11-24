@@ -1,8 +1,9 @@
 
 import { Telegraf } from "telegraf";
+import { config } from "../config/constants";
 
 // Ensure all .env variables are loaded 
-const bot = new Telegraf(process.env.BOT_TOKEN!);
+const bot = new Telegraf(config.BOT_TOKEN!);
 
 bot.start((ctx: any) => {
     console.log("\n\n User is starting the bot")
@@ -185,14 +186,14 @@ const sendNotification = async (message: any) => {
     // TG_USERS.forEach((chat) => {
 
     bot.telegram
-        .sendMessage(process.env.TG_MESSAGE_RECEIVER!, message, {
+        .sendMessage(config.TG_MESSAGE_RECEIVER!, message, {
             parse_mode: "HTML",
             disable_web_page_preview: true,
         })
         .catch((error: any) => {
             console.log(
                 "\n\n Encountered an error while sending notification to ",
-                process.env.TG_MESSAGE_RECEIVER!
+                config.TG_MESSAGE_RECEIVER!
             );
             console.log("==============================");
             console.log(error);

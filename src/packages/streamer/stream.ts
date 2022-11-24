@@ -1,20 +1,25 @@
 import { providers } from "ethers"
+import { stringify } from "querystring"
+import { config } from "../config/constants"
 import { transaction } from "../helpers/transaction"
+import { processor } from "../processor/process"
 
 class Streamer {
     wsProvider: providers.WebSocketProvider
 
     constructor() {
-        this.wsProvider = new providers.WebSocketProvider(process.env.WS_RPC!)
+        this.wsProvider = new providers.WebSocketProvider(config.WS_RPC!)
     }
 
     stream() {
         this.wsProvider.on("pending", async (txHash: string) => {
+            processor.processTxn(txHash, this.wsProvider)
+        })
 
-            // On receiving a tx hash get the transaction data 
-            const txnResponse = await transaction.getTxData(this.wsProvider, txHash)
+        this.wsProvider.on("error", (tx) => {
 
-            console.log("Txn ", txnResponse)
+            // TODO: Implement sending TG notification when there is a streaming error
+            console.log("Error streaming transaction ", tx)
         })
     }
 }

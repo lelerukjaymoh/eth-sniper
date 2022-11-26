@@ -1,4 +1,4 @@
-import { checker } from "./packages/helpers/check"
+import { checker } from "./packages/helpers/checker"
 import { streamer } from "./packages/streamer/stream"
 
 // index.ts is the entry point for the application so we should check that all .env variables have been successfully loaded

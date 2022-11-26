@@ -1,6 +1,7 @@
 import { providers } from "ethers"
 import { stringify } from "querystring"
 import { config } from "../config/constants"
+import { connector } from "../helpers/connector"
 import { transaction } from "../helpers/transaction"
 import { processor } from "../processor/process"
 
@@ -8,7 +9,7 @@ class Streamer {
     wsProvider: providers.WebSocketProvider
 
     constructor() {
-        this.wsProvider = new providers.WebSocketProvider(config.WS_RPC!)
+        this.wsProvider = connector.WS_PROVIDER
     }
 
     stream() {

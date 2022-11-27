@@ -29,16 +29,18 @@ class Processor {
 
                     if (config.SUPPORTED_LIQUIDITY_METHODS.includes(txnDescription.name)) {
                         // Extract relevant transaction information
-                        const txn = await transaction.getTxnData(txnDescription)
+                        const txn = await transaction.getTxnData(txnDescription, txHash)
 
                         if (txn) {
-                            console.log("Txn ", txHash, txn)
+                            console.log("Data ", txHash, txn)
 
                             // REVIEW: implementation for sending the message when liquidity is added to be removed later 
                             //since it slows down the bot 
 
                             const tokenName = await contract.contractName(txn.token)
-                            const addLiquidityMessage = message.addLiquidityTxnMessage(tokenName, txn.token, txn.baseTokenLiquidityAmount)
+                            const baseTokenSymbol = await contract.contractSymbol(txn.baseToken)
+                            const addLiquidityMessage = message.addLiquidityTxnMessage(tokenName, baseTokenSymbol, txn.token, txn.baseTokenLiquidityAmount, txHash)
+
                             await sendNotification(addLiquidityMessage)
                         }
                     }

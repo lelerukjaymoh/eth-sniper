@@ -33,6 +33,16 @@ class _Contract {
         }
     }
 
+    async contractSymbol(tokenAddress: string) {
+        try {
+            const contract = this.getContract(tokenAddress)
+
+            return await contract.symbol()
+        } catch (error) {
+            console.log("Error getting contract symbol ", error)
+        }
+    }
+
 }
 
 export const contract = new _Contract()

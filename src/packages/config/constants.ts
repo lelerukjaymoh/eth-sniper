@@ -11,7 +11,7 @@ export const config = {
     EXCLUDED_INPUT_DATA: ["0x", "0x0"],
 
     // Main tokens that new tokens are paired to ie. WETH, USDT, USDC, BUSD
-    BASE_TOKENS: [addresses.WETH, addresses.USDC, addresses.USDT],
+    BASE_TOKENS: [addresses.WETH, addresses.USDC, addresses.USDT, addresses.DAI],
 
     SUPPORTED_LIQUIDITY_METHODS: ["addLiquidityETH", "addLiquidity"]
 

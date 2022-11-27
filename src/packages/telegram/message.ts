@@ -13,13 +13,15 @@ class Message {
     return message
   }
 
-  async addLiquidityTxnMessage(tokenName: string, tokenAddress: string, liquidity: Number) {
+  addLiquidityTxnMessage(tokenName: string, baseTokenSymbol: string, tokenAddress: string, liquidity: Number, addLiquidityTxnHash: string) {
     let message = "Add liquidity Notification"
-    message += `\n\n${tokenName}`
+    message += `\n\n${tokenName} (${baseTokenSymbol})`
     message += "\n\nToken address"
-    message += `\n${tokenAddress}`
+    message += `\nhttps://etherscan.io/address/${tokenAddress}`
     message += "\n\nLiquidity Amount"
-    message += `\n${liquidity}`
+    message += `\n${liquidity} ${baseTokenSymbol}`
+    message += "\n\nAdd liquidity Txn"
+    message += `\nhttps://etherscan.io/tx/${addLiquidityTxnHash}`
 
     return message
   }

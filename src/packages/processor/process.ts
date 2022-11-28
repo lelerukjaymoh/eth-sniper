@@ -13,38 +13,45 @@ class Processor {
             // On receiving a tx hash get the transaction data 
             const txnResponse = await transaction.getTxResponse(wsProvider, txHash)
 
-            // Extract the transaction input data from the transaction data
-            const txInput = txnResponse?.data
+            if (txnResponse) {
 
 
-            // decode the transaction data
-            // This allows us to access the data 
-            if (txInput && !config.EXCLUDED_INPUT_DATA.includes(txInput)) {
-                const txnDescription = await transaction.decodeTxn(txInput)
+                // Extract the transaction input data from the transaction data
+                const txInput = txnResponse?.data
 
-                if (txnDescription) {
-                    console.log("Txn ", txHash)
+                // Extract the value sent with the transaction.  
+                // This is used to get the amount of eth that is added in an addliquidityeth transaction
+                const value = txnResponse?.value
 
-                    // REVIEW: Only focus on addliquidityeth and addliquidity txn methods at the moment
+                // decode the transaction data
+                // This allows us to access the data 
+                if (txInput && !config.EXCLUDED_INPUT_DATA.includes(txInput)) {
+                    const txnDescription = await transaction.decodeTxn(txInput)
 
-                    if (config.SUPPORTED_LIQUIDITY_METHODS.includes(txnDescription.name)) {
-                        // Extract relevant transaction information
-                        const txn = await transaction.getTxnData(txnDescription, txHash)
+                    if (txnDescription) {
+                        console.log("Txn ", txnResponse)
 
-                        if (txn) {
-                            console.log("Data ", txHash, txn)
+                        // REVIEW: Only focus on addliquidityeth and addliquidity txn methods at the moment
 
-                            // REVIEW: implementation for sending the message when liquidity is added to be removed later 
-                            //since it slows down the bot 
+                        if (config.SUPPORTED_LIQUIDITY_METHODS.includes(txnDescription.name)) {
+                            // Extract relevant transaction information
+                            const txn = await transaction.getTxnData(txnDescription, value, txHash)
 
-                            const tokenName = await contract.contractName(txn.token)
-                            const baseTokenSymbol = await contract.contractSymbol(txn.baseToken)
-                            const addLiquidityMessage = message.addLiquidityTxnMessage(tokenName, baseTokenSymbol, txn.token, txn.baseTokenLiquidityAmount, txHash)
+                            if (txn) {
+                                console.log("Data ", txHash, txn)
 
-                            await sendNotification(addLiquidityMessage)
+                                // REVIEW: implementation for sending the message when liquidity is added to be removed later 
+                                //since it slows down the bot 
+
+                                const tokenName = await contract.contractName(txn.token)
+                                const baseTokenSymbol = await contract.contractSymbol(txn.baseToken)
+                                const addLiquidityMessage = message.addLiquidityTxnMessage(tokenName, baseTokenSymbol, txn.token, txn.baseTokenLiquidityAmount, txHash)
+
+                                await sendNotification(addLiquidityMessage)
+                            }
                         }
-                    }
 
+                    }
                 }
             }
         } catch (error) {

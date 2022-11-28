@@ -34,18 +34,20 @@ class Transaction {
         }
     }
 
-    async getTxnData(txn: utils.TransactionDescription, txnHash: string): Promise<TxnData | undefined> {
+    async getTxnData(txn: utils.TransactionDescription, txnValue: BigNumber, txnHash: string): Promise<TxnData | undefined> {
         try {
+
+            console.log("txn ", txn)
 
             let token: string;
             let baseToken: string = addresses.WETH
             let baseTokenLiquidityAmount: BigNumber
-
+            let value = txnValue
 
             if (txn.name == "addLiquidityETH") {
                 token = txn.args.token
                 baseToken = addresses.WETH
-                baseTokenLiquidityAmount = txn.args.amountETHMin
+                baseTokenLiquidityAmount = txnValue
             } else {
                 const liquidityPath: string[] = [txn.args.tokenA.toLowerCase(), txn.args.tokenB.toLowerCase()]
 
@@ -62,7 +64,7 @@ class Transaction {
 
                 const txnData = {
                     name: txn.name,
-                    value: txn.value,
+                    value,
                     token,
                     baseToken,
                     baseTokenLiquidityAmount: parseFloat(utils.formatUnits(baseTokenLiquidityAmount, decimals))

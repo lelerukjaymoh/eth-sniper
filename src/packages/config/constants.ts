@@ -2,7 +2,6 @@ import { addresses } from "./address";
 
 export const config = {
     WS_RPC: process.env.WS_RPC,
-    PRIVATE_KEY: process.env.PRIVATE_KEY,
 
     // Telegram config
     BOT_TOKEN: process.env.BOT_TOKEN,

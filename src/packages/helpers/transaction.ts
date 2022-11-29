@@ -37,8 +37,6 @@ class Transaction {
     async getTxnData(txn: utils.TransactionDescription, txnValue: BigNumber, txnHash: string): Promise<TxnData | undefined> {
         try {
 
-            console.log("txn ", txn)
-
             let token: string;
             let baseToken: string = addresses.WETH
             let baseTokenLiquidityAmount: BigNumber

@@ -12,7 +12,7 @@ export const config = {
     // Main tokens that new tokens are paired to ie. WETH, USDT, USDC, BUSD
     BASE_TOKENS: [addresses.WETH, addresses.USDC, addresses.USDT, addresses.DAI],
 
-    SUPPORTED_LIQUIDITY_METHODS: ["addLiquidityETH", "addLiquidity"]
+    SUPPORTED_LIQUIDITY_METHODS: ["addLiquidityETH", "addLiquidity"],
 
-
+    ETHERSCAN_API_KEY: process.env.ETHERSCAN_API_KEY
 }

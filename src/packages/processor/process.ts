@@ -15,7 +15,6 @@ class Processor {
 
             if (txnResponse) {
 
-
                 // Extract the transaction input data from the transaction data
                 const txInput = txnResponse?.data
 
@@ -29,7 +28,6 @@ class Processor {
                     const txnDescription = await transaction.decodeTxn(txInput)
 
                     if (txnDescription) {
-                        console.log("Txn ", txnResponse)
 
                         // REVIEW: Only focus on addliquidityeth and addliquidity txn methods at the moment
 

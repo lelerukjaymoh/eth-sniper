@@ -1,5 +1,5 @@
 1. Create streamer
-    - Fix the issue when the bot can not fetch the transaction data in time
+    - Fix the issue when the bot can not fetch the transaction data in time  (DONE)
 
 2. Check that the token doesnt have liquidity yet
 

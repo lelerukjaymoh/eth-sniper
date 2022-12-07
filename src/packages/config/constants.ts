@@ -14,5 +14,10 @@ export const config = {
 
     SUPPORTED_LIQUIDITY_METHODS: ["addLiquidityETH", "addLiquidity"],
 
-    ETHERSCAN_API_KEY: process.env.ETHERSCAN_API_KEY
+    ETHERSCAN_API_KEY: process.env.ETHERSCAN_API_KEY,
+
+    MINIMUMLIQUIDITY: {
+        eth: 0.5,
+        stable: 600
+    }
 }

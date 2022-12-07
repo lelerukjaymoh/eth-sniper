@@ -1,4 +1,5 @@
 import { providers } from "ethers"
+import { addresses } from "../config/address"
 import { config } from "../config/constants"
 import { contract } from "../helpers/contract"
 import { transaction } from "../helpers/transaction"
@@ -37,6 +38,25 @@ class Processor {
 
                             if (txn) {
                                 console.log("An add liquidity txn ", txnHash, txn)
+
+                                const minimumLiquidity = txn.baseToken == addresses.WETH ? config.MINIMUMLIQUIDITY.eth : config.MINIMUMLIQUIDITY.stable
+
+                                // Criteria for a good token
+                                // 1. contract has been verified
+                                // 2. Add liquidity amount is more than 600 usd ~ 0.5 eth
+                                // 3. Can buy and sell the token
+
+                                // Check that the liquidity amount is greater than the threshold
+                                if (txn.baseTokenLiquidityAmount > minimumLiquidity) {
+                                    // Enough liquidity to buy this token 
+
+
+                                } else {
+                                    const tokenName = await contract.contractName(txn.token)
+                                    const baseTokenSymbol = await contract.contractSymbol(txn.baseToken)
+
+                                    await sendNotification(message.notEnoughLiquidity(txn.token, tokenName, txn.baseTokenLiquidityAmount, baseTokenSymbol, txnHash))
+                                }
                             }
                         }
 

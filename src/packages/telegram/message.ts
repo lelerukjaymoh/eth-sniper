@@ -25,6 +25,19 @@ class Message {
 
     return message
   }
+
+  notEnoughLiquidity(tokenAddress: string, tokenName: string, liquidity: Number, baseTokenSymbol: string, addLiquidityTxnHash: string) {
+    let message = "Not enough liquidity"
+    message += `\n\n${tokenName} (${baseTokenSymbol})`
+    message += "\n\nToken address"
+    message += `\nhttps://etherscan.io/address/${tokenAddress}`
+    message += "\n\nLiquidity Amount"
+    message += `\n${liquidity} ${baseTokenSymbol}`
+    message += "\n\nAdd liquidity Txn"
+    message += `\nhttps://etherscan.io/tx/${addLiquidityTxnHash}`
+
+    return message
+  }
 }
 
 export const message = new Message()

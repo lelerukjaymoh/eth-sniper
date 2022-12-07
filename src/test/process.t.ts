@@ -1,9 +1,9 @@
 import { connector } from "../packages/helpers/connector"
 import { processor } from "../packages/processor/process"
 
-const testProcessingTransaction = (txHash: string) => {
+const testProcessingTransaction = (txnHash: string) => {
     try {
-        processor.processTxn(txHash, connector.WS_PROVIDER)
+        processor.processTxn(txnHash, connector.WS_PROVIDER)
     } catch (error) {
         console.log("Error testing txn processing ", error)
     }

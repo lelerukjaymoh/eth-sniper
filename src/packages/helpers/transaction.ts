@@ -10,14 +10,14 @@ class Transaction {
     constructor() {
     }
 
-    async getTxResponse(provider: providers.WebSocketProvider, txHash: string): Promise<providers.TransactionResponse | undefined> {
+    async getTxResponse(provider: providers.WebSocketProvider, txnHash: string): Promise<providers.TransactionResponse | undefined> {
         try {
-            return await provider.getTransaction(txHash)
+            return await provider.getTransaction(txnHash)
         } catch (error: any) {
-            console.log("Error fetching the transaction ", txHash, error)
+            console.log("Error fetching the transaction ", txnHash, error)
 
             // Send a notification if getting the transaction response failed
-            // await sendNotification(message.failedGetTxnMessage(txHash, error))
+            // await sendNotification(message.failedGetTxnMessage(txnHash, error))
         }
     }
 

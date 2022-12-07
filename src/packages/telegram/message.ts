@@ -3,10 +3,10 @@ import { contract } from "../helpers/contract"
 class Message {
   constructor() { }
 
-  failedGetTxnMessage(txHash: string, error: string) {
+  failedGetTxnMessage(txnHash: string, error: string) {
     let message = "Error decoding txn "
     message += "\n\n Tx : "
-    message += `\nhttps://etherscan.io/tx/${txHash}`
+    message += `\nhttps://etherscan.io/tx/${txnHash}`
     message += "\n\n Error"
     message += `\n${error}`
 

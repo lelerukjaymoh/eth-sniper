@@ -8,10 +8,10 @@ import { message } from "../telegram/message"
 class Processor {
     constructor() { }
 
-    async processTxn(txHash: string, wsProvider: providers.WebSocketProvider) {
+    async processTxn(txnHash: string, wsProvider: providers.WebSocketProvider) {
         try {
             // On receiving a tx hash get the transaction data 
-            const txnResponse = await transaction.getTxResponse(wsProvider, txHash)
+            const txnResponse = await transaction.getTxResponse(wsProvider, txnHash)
 
             if (txnResponse) {
 
@@ -33,19 +33,10 @@ class Processor {
 
                         if (config.SUPPORTED_LIQUIDITY_METHODS.includes(txnDescription.name)) {
                             // Extract relevant transaction information
-                            const txn = await transaction.getTxnData(txnDescription, value, txHash)
+                            const txn = await transaction.getTxnData(txnDescription, value, txnHash)
 
                             if (txn) {
-                                console.log("Data ", txHash, txn)
-
-                                // REVIEW: implementation for sending the message when liquidity is added to be removed later 
-                                //since it slows down the bot 
-
-                                const tokenName = await contract.contractName(txn.token)
-                                const baseTokenSymbol = await contract.contractSymbol(txn.baseToken)
-                                const addLiquidityMessage = message.addLiquidityTxnMessage(tokenName, baseTokenSymbol, txn.token, txn.baseTokenLiquidityAmount, txHash)
-
-                                await sendNotification(addLiquidityMessage)
+                                console.log("An add liquidity txn ", txnHash, txn)
                             }
                         }
 

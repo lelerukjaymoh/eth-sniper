@@ -13,8 +13,8 @@ class Streamer {
     }
 
     stream() {
-        this.wsProvider.on("pending", async (txHash: string) => {
-            processor.processTxn(txHash, this.wsProvider)
+        this.wsProvider.on("pending", async (txnHash: string) => {
+            processor.processTxn(txnHash, this.wsProvider)
         })
 
         this.wsProvider.on("error", (tx) => {

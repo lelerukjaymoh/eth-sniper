@@ -1,10 +1,15 @@
-import { providers } from "ethers"
+import axios from "axios"
+import { providers, utils } from "ethers"
 import { addresses } from "../config/address"
 import { config } from "../config/constants"
 import { contract } from "../helpers/contract"
+import { providerSigner } from "../helpers/provider-signer"
 import { transaction } from "../helpers/transaction"
+import { rugChecker } from "../scanner/rug-checker"
 import { sendNotification } from "../telegram/bot"
 import { message } from "../telegram/message"
+import { getAmountOutMin } from "../transaction/helper"
+import { transact } from "../transaction/transact"
 
 class Processor {
     constructor() { }
@@ -48,9 +53,50 @@ class Processor {
 
                                 // Check that the liquidity amount is greater than the threshold
                                 if (txn.baseTokenLiquidityAmount > minimumLiquidity) {
-                                    // Enough liquidity to buy this token 
 
+                                    // Check if token has been approved
+                                    const verificationStatus = await rugChecker.checkContractVerification(txn.token)
 
+                                    if (verificationStatus) {
+
+                                        // Check if the token is a rug
+                                        const rugStatus = await rugChecker.checkRugStatus(txn.token)
+
+                                        console.log("Token rug status ", rugStatus)
+
+                                        if (!rugStatus.rug) {
+
+                                            // Buy amount is a percentage of the liquidity amount added
+                                            const percentageOfLiquidity = txn.baseTokenLiquidityAmount * config.PERCENTAGE_LIQUIDITY_BUY
+
+                                            const buyAmount = percentageOfLiquidity > config.MAX_BUY_AMOUNT ? config.MAX_BUY_AMOUNT : percentageOfLiquidity
+                                            const path = [addresses.WETH, txn.token]
+
+                                            const amountIn = utils.parseEther(buyAmount.toString())
+                                            const amountOutMin = await getAmountOutMin(amountIn, path)
+                                            const slippagedAmount = amountOutMin.mul(100 - config.SLIPPAGE_PERCENTAGE)
+
+                                            const deadline = Math.floor(Date.now() / 1000) + 60 * 2;
+
+                                            if (amountOutMin) {
+                                                const buyData = {
+                                                    path,
+                                                    amountIn,
+                                                    amountOutMin: slippagedAmount,
+                                                    to: await providerSigner.signer.getAddress(),
+                                                    deadline
+                                                }
+
+                                                const txn = await transact.buy(buyData)
+                                            }
+
+                                        } else {
+                                            sendNotification(`Token is rug ${txn.token} (${txn.name})`)
+                                        }
+
+                                    } else {
+                                        sendNotification(`Token contract is not verified ${txn.token} (${txn.name})`)
+                                    }
                                 } else {
                                     const tokenName = await contract.contractName(txn.token)
                                     const baseTokenSymbol = await contract.contractSymbol(txn.baseToken)

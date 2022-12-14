@@ -1,9 +1,9 @@
-import { connector } from "../packages/helpers/connector"
+import { providerSigner } from "../packages/helpers/provider-signer"
 import { processor } from "../packages/processor/process"
 
 const testProcessingTransaction = (txnHash: string) => {
     try {
-        processor.processTxn(txnHash, connector.WS_PROVIDER)
+        processor.processTxn(txnHash, providerSigner.wsProvider)
     } catch (error) {
         console.log("Error testing txn processing ", error)
     }

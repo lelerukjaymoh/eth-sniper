@@ -1,6 +1,8 @@
 import { Contract, utils } from "ethers"
 import tokenABI from "../abi/tokenABI.json"
-import { connector } from "./connector"
+import routerABI from "../abi/routerABI.json"
+import { config } from "../config/constants"
+import { providerSigner } from "./provider-signer"
 
 class _Contract {
     tokenInterface: utils.Interface
@@ -10,7 +12,11 @@ class _Contract {
     }
 
     getContract(contractAddress: string): Contract {
-        return new Contract(contractAddress, tokenABI, connector.WS_PROVIDER)
+        return new Contract(contractAddress, tokenABI, providerSigner.wsProvider)
+    }
+
+    routerContract(): Contract {
+        return new Contract(config.UNISWAP_ROUTER_ADDRESS, routerABI, providerSigner.signer)
     }
 
     async contractName(tokenAddress: string) {

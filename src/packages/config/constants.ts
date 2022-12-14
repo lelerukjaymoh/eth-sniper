@@ -19,5 +19,13 @@ export const config = {
     MINIMUMLIQUIDITY: {
         eth: 0.5,
         stable: 600
-    }
+    },
+
+    RUG_CHECKER_URL: "http://168.119.213.58:8000/check",
+
+    PERCENTAGE_LIQUIDITY_BUY: 10,
+
+    MAX_BUY_AMOUNT: 0.002,
+    SLIPPAGE_PERCENTAGE: 1,
+    UNISWAP_ROUTER_ADDRESS: ""
 }

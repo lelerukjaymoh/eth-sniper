@@ -5,5 +5,13 @@ export interface TxnData {
     value: BigNumber,
     token: string,
     baseToken: string,
-    baseTokenLiquidityAmount: Number
+    baseTokenLiquidityAmount: number
+}
+
+export interface BuyData {
+    path: string[],
+    to: string,
+    amountIn: BigNumber,
+    amountOutMin: BigNumber,
+    deadline: number
 }

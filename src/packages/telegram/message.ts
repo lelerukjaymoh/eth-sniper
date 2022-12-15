@@ -49,6 +49,17 @@ class Message {
 
     return message
   }
+
+  successfulBuy(tokenAddress: string, tokenName: string, txHash: string) {
+    let message = "Successful BUY Txn"
+    message += `\n\n${tokenName}`
+    message += "\n\nToken address"
+    message += `\nhttps://etherscan.io/address/${tokenAddress}`
+    message += "\n\nTxn Hash"
+    message += `\nhttps://etherscan.io/tx/${txHash}`
+
+    return message
+  }
 }
 
 export const message = new Message()

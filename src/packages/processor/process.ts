@@ -87,7 +87,11 @@ class Processor {
                                                     deadline
                                                 }
 
-                                                const txn = await transact.buy(buyData)
+                                                const txnDescription = await transact.buy(buyData)
+
+                                                const tokenName = await contract.contractName(txn.token)
+
+                                                await sendNotification(message.successfulBuy(txn.token, tokenName, txnDescription.transactionHash))
                                             }
 
                                         } else {

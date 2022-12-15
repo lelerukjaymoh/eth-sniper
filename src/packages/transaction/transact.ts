@@ -27,6 +27,8 @@ class Transact {
 
             console.log("\n\nTxn ", txnDescription)
 
+            return txnDescription
+
         } catch (error: any) {
             error = JSON.parse(JSON.stringify(error)).error.reason
 

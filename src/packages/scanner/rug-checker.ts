@@ -7,7 +7,9 @@ class RugChecker {
     // Check if a contract is a rug
     async checkRugStatus(tokenAddress: string) {
         try {
-            // const rugStatus = 
+
+            console.log("Checking if a token is a Rug")
+
             const { data } = await axios({
                 method: 'post',
                 url: config.RUG_CHECKER_URL,

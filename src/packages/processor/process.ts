@@ -57,6 +57,8 @@ class Processor {
                                     // Check if token has been approved
                                     const verificationStatus = await rugChecker.checkContractVerification(txn.token)
 
+                                    console.log("Verifiaction status ", verificationStatus)
+
                                     if (verificationStatus) {
 
                                         // Check if the token is a rug
@@ -105,7 +107,7 @@ class Processor {
                                         message += "\n\nToken"
                                         message += `\nhttps://etherscan.io/address/${txn.token}#code`
 
-                                        sendNotification(message)
+                                        // sendNotification(message)
                                     }
                                 } else {
                                     const tokenName = await contract.contractName(txn.token)

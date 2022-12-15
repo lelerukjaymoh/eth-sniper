@@ -38,6 +38,17 @@ class Message {
 
     return message
   }
+
+  failedBuy(tokenAddress: string, tokenName: string, errorMessage: string) {
+    let message = "Buy Txn Failed"
+    message += `\n\n${tokenName}`
+    message += "\n\nToken address"
+    message += `\nhttps://etherscan.io/address/${tokenAddress}`
+    message += "\n\nError"
+    message += `\n${errorMessage}`
+
+    return message
+  }
 }
 
 export const message = new Message()

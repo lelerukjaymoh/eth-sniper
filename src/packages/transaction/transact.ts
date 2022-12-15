@@ -1,26 +1,41 @@
 import { contract } from "../helpers/contract"
 import { BuyData } from "../helpers/types"
+import { sendNotification } from "../telegram/bot"
+import { message } from "../telegram/message"
 
 class Transact {
     constructor() { }
 
     async buy(buyData: BuyData) {
         try {
+
+            console.log("Buy data  ", buyData)
+
             const txnResponse = await contract.routerContract().swapExactETHForTokens(
                 buyData.amountOutMin,
                 buyData.path,
                 buyData.to,
-                buyData.deadline
+                buyData.deadline,
+                {
+                    value: buyData.amountIn
+                }
             )
 
-            console.log("Txn response ", txnResponse)
+            console.log("\nTxn response ", txnResponse)
 
             const txnDescription = await txnResponse.wait()
 
-            console.log("Txn ", txnDescription)
+            console.log("\n\nTxn ", txnDescription)
 
-        } catch (error) {
-            console.log("Error buying token ", buyData.path[buyData.path.length - 1])
+        } catch (error: any) {
+            error = JSON.parse(JSON.stringify(error)).error.reason
+
+            console.log("\n\nError buying token ", buyData.path[buyData.path.length - 1], error)
+
+            const token = buyData.path[buyData.path.length - 1]
+            const tokenName = await contract.contractName(token)
+
+            await sendNotification(message.failedBuy(token, tokenName, error))
         }
     }
 }

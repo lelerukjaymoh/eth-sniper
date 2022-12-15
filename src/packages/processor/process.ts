@@ -91,7 +91,7 @@ class Processor {
 
                                                 const tokenName = await contract.contractName(txn.token)
 
-                                                await sendNotification(message.successfulBuy(txn.token, tokenName, txnDescription.transactionHash))
+                                                await sendNotification(message.successfulBuy(txn.token, tokenName, "HOLDER"))
                                             }
 
                                         } else {
@@ -99,13 +99,19 @@ class Processor {
                                         }
 
                                     } else {
-                                        sendNotification(`Token contract is not verified ${txn.token} (${txn.name})`)
+                                        let message = "Token contract code not verified"
+                                        message += "\n\nToken Name"
+                                        message += `${await contract.contractName(txn.token)}`
+                                        message += "\n\nToken"
+                                        message += `\nhttps://etherscan.io/address/${txn.token}#code`
+
+                                        sendNotification(message)
                                     }
                                 } else {
                                     const tokenName = await contract.contractName(txn.token)
                                     const baseTokenSymbol = await contract.contractSymbol(txn.baseToken)
 
-                                    await sendNotification(message.notEnoughLiquidity(txn.token, tokenName, txn.baseTokenLiquidityAmount, baseTokenSymbol, txnHash))
+                                    // await sendNotification(message.notEnoughLiquidity(txn.token, tokenName, txn.baseTokenLiquidityAmount, baseTokenSymbol, txnHash))
                                 }
                             }
                         }

@@ -11,7 +11,7 @@ class Transact {
 
             console.log("Buy data  ", buyData)
 
-            const txnResponse = await contract.routerContract().swapExactETHForTokens(
+            const txnResponse = await contract.routerContract().callStatic.swapExactETHForTokens(
                 buyData.amountOutMin,
                 buyData.path,
                 buyData.to,
@@ -23,11 +23,13 @@ class Transact {
 
             console.log("\nTxn response ", txnResponse)
 
-            const txnDescription = await txnResponse.wait()
+            return txnResponse
 
-            console.log("\n\nTxn ", txnDescription)
+            // const txnDescription = await txnResponse.wait()
 
-            return txnDescription
+            // console.log("\n\nTxn ", txnDescription)
+
+            // return txnDescription
 
         } catch (error: any) {
             error = JSON.parse(JSON.stringify(error)).error.reason

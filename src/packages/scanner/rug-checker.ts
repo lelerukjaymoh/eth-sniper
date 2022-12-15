@@ -16,6 +16,7 @@ class RugChecker {
                 }
             });
 
+            console.log("Rug status data : ", data)
 
             return data
         } catch (error) {

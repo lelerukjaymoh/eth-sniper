@@ -60,6 +60,16 @@ class Message {
 
     return message
   }
+
+  rugToken(tokenAddress: string, tokenName: string) {
+
+    let message = "Token is Rug"
+    message += `\n\nToken`
+    message += `\n${tokenName}`
+    message += `\n\nhttps://honeypot.is/ethereum?address=${tokenAddress}`
+
+    return message
+  }
 }
 
 export const message = new Message()

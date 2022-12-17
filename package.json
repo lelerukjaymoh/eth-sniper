@@ -8,7 +8,7 @@
   "private": true,
   "scripts": {
     "dev": "ts-node-dev -r dotenv/config src/index.ts",
-    "test": "ts-node-dev -r dotenv/config src/test/testTransact.t.ts",
+    "test": "ts-node-dev -r dotenv/config src/test/rugcheck.t.ts",
     "prod": "pm2 start yarn --interpreter bash --watch --name eth-sniper -- dev"
   },
   "dependencies": {

@@ -35,7 +35,7 @@ class RugChecker {
                 url: `https://api.etherscan.io/api?module=contract&action=getabi&address=${tokenAddress}&apikey=${config.ETHERSCAN_API_KEY} `,
             });
 
-            console.log("Data ", data)
+            // console.log("Data ", data)
 
             if (data) {
                 if (data.result != "Contract source code not verified") {

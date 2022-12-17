@@ -21,7 +21,7 @@ export const config = {
         stable: 600
     },
 
-    RUG_CHECKER_URL: "http://168.119.213.58:8000/check",
+    RUG_CHECKER_URL: "http://168.119.213.58:3000/check",
 
     PERCENTAGE_LIQUIDITY_BUY: 0.1,
 

@@ -57,7 +57,7 @@ class Processor {
                                     // Check if token has been approved
                                     const verificationStatus = await rugChecker.checkContractVerification(txn.token)
 
-                                    console.log("Verifiaction status ", verificationStatus)
+                                    console.log("Verification status ", verificationStatus)
 
                                     if (verificationStatus) {
 
@@ -97,7 +97,9 @@ class Processor {
                                             }
 
                                         } else {
-                                            sendNotification(`Token is rug ${txn.token} (${txn.name})`)
+                                            const tokenName = await contract.contractName(txn.token)
+
+                                            await sendNotification(message.rugToken(txn.token, tokenName))
                                         }
 
                                     } else {

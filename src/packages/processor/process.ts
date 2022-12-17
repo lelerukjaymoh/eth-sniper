@@ -5,7 +5,6 @@ import { config } from "../config/constants"
 import { contract } from "../helpers/contract"
 import { providerSigner } from "../helpers/provider-signer"
 import { transaction } from "../helpers/transaction"
-import { _utils } from "../helpers/utils"
 import { rugChecker } from "../scanner/rug-checker"
 import { sendNotification } from "../telegram/bot"
 import { message } from "../telegram/message"
@@ -43,7 +42,7 @@ class Processor {
                             const txn = await transaction.getTxnData(txnDescription, value, txnHash)
 
                             if (txn) {
-                                console.log("\n\nAn add liquidity txn ", txnHash, txn)
+                                console.log("An add liquidity txn ", txnHash, txn)
 
                                 const minimumLiquidity = txn.baseToken == addresses.WETH ? config.MINIMUMLIQUIDITY.eth : config.MINIMUMLIQUIDITY.stable
 
@@ -62,32 +61,9 @@ class Processor {
 
                                     if (verificationStatus) {
 
-                                        // Buy amount is a percentage of the liquidity amount added
-                                        const percentageOfLiquidity = txn.baseTokenLiquidityAmount * config.PERCENTAGE_LIQUIDITY_BUY
-
-                                        const buyAmount = percentageOfLiquidity > config.MAX_BUY_AMOUNT ? config.MAX_BUY_AMOUNT : percentageOfLiquidity
-                                        const path = [addresses.WETH, txn.token]
-
-                                        const amountIn = utils.parseEther(buyAmount.toString())
-                                        let amountOutMin;
-
-                                        let startTime = Date.now()
-
-                                        // Check that liquidity has already been added to the pool
-                                        while (true) {
-
-                                            console.log("While loop ...")
-                                            try {
-                                                amountOutMin = await getAmountOutMin(amountIn, path)
-                                                break
-                                            } catch (error) {
-                                                amountOutMin = await getAmountOutMin(amountIn, path)
-                                            }
-
-                                            await _utils.wait(2000)
-                                        }
-
-                                        console.log("\nTime taken on while loop (Checking liquidity )", Date.now() - startTime)
+                                        // Wait for the add liquidity txn to be confirmed before tryinng to check the rug status of the token
+                                        // This is because the rug checker functionality needs liquidity to have already been added to the pool
+                                        await wsProvider.waitForTransaction(txnHash, 1, 3000)
 
                                         // Check if the token is a rug
                                         const rugStatus = await rugChecker.checkRugStatus(txn.token)
@@ -96,11 +72,19 @@ class Processor {
 
                                         if (!rugStatus.rug) {
 
+                                            // Buy amount is a percentage of the liquidity amount added
+                                            const percentageOfLiquidity = txn.baseTokenLiquidityAmount * config.PERCENTAGE_LIQUIDITY_BUY
+
+                                            const buyAmount = percentageOfLiquidity > config.MAX_BUY_AMOUNT ? config.MAX_BUY_AMOUNT : percentageOfLiquidity
+                                            const path = [addresses.WETH, txn.token]
+
+                                            const amountIn = utils.parseEther(buyAmount.toString())
+                                            const amountOutMin = await getAmountOutMin(amountIn, path)
                                             const slippagedAmount = amountOutMin.mul(100 - config.SLIPPAGE_PERCENTAGE)
 
                                             const deadline = Math.floor(Date.now() / 1000) + 60 * 2;
 
-                                            if (slippagedAmount) {
+                                            if (amountOutMin) {
                                                 const buyData = {
                                                     path,
                                                     amountIn,

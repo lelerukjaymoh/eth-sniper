@@ -21,9 +21,9 @@ class TransactionHelper {
             const amountOut = await contract.routerContract().getAmountsOut(amountIn, path)
             console.log("Amount out ", amountOut)
 
-            return true
-        } catch (error) {
             return false
+        } catch (error) {
+            return true
         }
     }
 

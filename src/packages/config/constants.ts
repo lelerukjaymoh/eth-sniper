@@ -17,8 +17,8 @@ export const config = {
     ETHERSCAN_API_KEY: process.env.ETHERSCAN_API_KEY,
 
     MINIMUMLIQUIDITY: {
-        eth: 0.5,
-        stable: 600
+        eth: 0.2,
+        stable: 400
     },
 
     RUG_CHECKER_URL: "http://168.119.213.58:3000/check",

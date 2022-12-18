@@ -8,14 +8,16 @@ import { transaction } from "../helpers/transaction"
 import { rugChecker } from "../scanner/rug-checker"
 import { sendNotification } from "../telegram/bot"
 import { message } from "../telegram/message"
-import { getAmountOutMin } from "../transaction/helper"
-import { transact } from "../transaction/transact"
+import { transact } from "../transaction"
+import { transactionHelper } from "../transaction"
+
 
 class Processor {
     constructor() { }
 
     async processTxn(txnHash: string, wsProvider: providers.WebSocketProvider) {
         try {
+
             // On receiving a tx hash get the transaction data 
             const txnResponse = await transaction.getTxResponse(wsProvider, txnHash)
 
@@ -44,82 +46,92 @@ class Processor {
                             if (txn) {
                                 console.log("An add liquidity txn ", txnHash, txn)
 
-                                const minimumLiquidity = txn.baseToken == addresses.WETH ? config.MINIMUMLIQUIDITY.eth : config.MINIMUMLIQUIDITY.stable
+                                // Set the transaction path early since its needed for checking  
+                                const path = [addresses.WETH, txn.token]
 
-                                // Criteria for a good token
-                                // 1. contract has been verified
-                                // 2. Add liquidity amount is more than 600 usd ~ 0.5 eth
-                                // 3. Can buy and sell the token
+                                // First check if the transaction is a new listing
+                                const newListing = await transactionHelper.isNewListing(utils.parseEther("0.0001"), path)
 
-                                // Check that the liquidity amount is greater than the threshold
-                                if (txn.baseTokenLiquidityAmount > minimumLiquidity) {
+                                console.log("New listing ", newListing)
 
-                                    // Check if token has been approved
-                                    const verificationStatus = await rugChecker.checkContractVerification(txn.token)
+                                if (newListing) {
 
-                                    console.log("Verification status ", verificationStatus)
+                                    const minimumLiquidity = txn.baseToken == addresses.WETH ? config.MINIMUMLIQUIDITY.eth : config.MINIMUMLIQUIDITY.stable
 
-                                    if (verificationStatus) {
+                                    // Criteria for a good token
+                                    // 1. contract has been verified
+                                    // 2. Add liquidity amount is more than 600 usd ~ 0.5 eth
+                                    // 3. Can buy and sell the token
 
-                                        // Wait for the add liquidity txn to be confirmed before tryinng to check the rug status of the token
-                                        // This is because the rug checker functionality needs liquidity to have already been added to the pool
-                                        await wsProvider.waitForTransaction(txnHash, 1, 3000)
+                                    // Check that the liquidity amount is greater than the threshold
+                                    if (txn.baseTokenLiquidityAmount > minimumLiquidity) {
 
-                                        // Check if the token is a rug
-                                        const rugStatus = await rugChecker.checkRugStatus(txn.token)
+                                        // Check if token has been approved
+                                        const verificationStatus = await rugChecker.checkContractVerification(txn.token)
 
-                                        console.log("Token rug status ", rugStatus)
+                                        console.log("Verification status ", verificationStatus)
 
-                                        if (!rugStatus.rug) {
+                                        if (verificationStatus) {
 
-                                            // Buy amount is a percentage of the liquidity amount added
-                                            const percentageOfLiquidity = txn.baseTokenLiquidityAmount * config.PERCENTAGE_LIQUIDITY_BUY
+                                            // Wait for the add liquidity txn to be confirmed before tryinng to check the rug status of the token
+                                            // This is because the rug checker functionality needs liquidity to have already been added to the pool
+                                            await wsProvider.waitForTransaction(txnHash, 1, 3000)
 
-                                            const buyAmount = percentageOfLiquidity > config.MAX_BUY_AMOUNT ? config.MAX_BUY_AMOUNT : percentageOfLiquidity
-                                            const path = [addresses.WETH, txn.token]
+                                            // Check if the token is a rug
+                                            const rugStatus = await rugChecker.checkRugStatus(txn.token)
 
-                                            const amountIn = utils.parseEther(buyAmount.toString())
-                                            const amountOutMin = await getAmountOutMin(amountIn, path)
-                                            const slippagedAmount = amountOutMin.mul(100 - config.SLIPPAGE_PERCENTAGE)
+                                            console.log("Token rug status ", rugStatus)
 
-                                            const deadline = Math.floor(Date.now() / 1000) + 60 * 2;
+                                            if (!rugStatus.rug) {
 
-                                            if (amountOutMin) {
-                                                const buyData = {
-                                                    path,
-                                                    amountIn,
-                                                    amountOutMin: slippagedAmount,
-                                                    to: await providerSigner.signer.getAddress(),
-                                                    deadline
+                                                // Buy amount is a percentage of the liquidity amount added
+                                                const percentageOfLiquidity = txn.baseTokenLiquidityAmount * config.PERCENTAGE_LIQUIDITY_BUY
+
+                                                const buyAmount = percentageOfLiquidity > config.MAX_BUY_AMOUNT ? config.MAX_BUY_AMOUNT : percentageOfLiquidity
+
+                                                const amountIn = utils.parseEther(buyAmount.toString())
+                                                const amountOutMin = await transactionHelper.getAmountOutMin(amountIn, path)
+                                                const slippagedAmount = amountOutMin.mul(100 - config.SLIPPAGE_PERCENTAGE)
+
+                                                const deadline = Math.floor(Date.now() / 1000) + 60 * 2;
+
+                                                if (amountOutMin) {
+                                                    const buyData = {
+                                                        path,
+                                                        amountIn,
+                                                        amountOutMin: slippagedAmount,
+                                                        to: await providerSigner.signer.getAddress(),
+                                                        deadline
+                                                    }
+
+                                                    const txnDescription = await transact.buy(buyData)
+
+                                                    const tokenName = await contract.contractName(txn.token)
+
+                                                    await sendNotification(message.successfulBuy(txn.token, tokenName, "HOLDER"))
                                                 }
 
-                                                const txnDescription = await transact.buy(buyData)
-
+                                            } else {
                                                 const tokenName = await contract.contractName(txn.token)
 
-                                                await sendNotification(message.successfulBuy(txn.token, tokenName, "HOLDER"))
+                                                await sendNotification(message.rugToken(txn.token, tokenName))
                                             }
 
                                         } else {
-                                            const tokenName = await contract.contractName(txn.token)
+                                            let message = "Token contract code not verified"
+                                            message += "\n\nToken Name"
+                                            message += `${await contract.contractName(txn.token)}`
+                                            message += "\n\nToken"
+                                            message += `\nhttps://etherscan.io/address/${txn.token}#code`
 
-                                            await sendNotification(message.rugToken(txn.token, tokenName))
+                                            // sendNotification(message)
                                         }
-
                                     } else {
-                                        let message = "Token contract code not verified"
-                                        message += "\n\nToken Name"
-                                        message += `${await contract.contractName(txn.token)}`
-                                        message += "\n\nToken"
-                                        message += `\nhttps://etherscan.io/address/${txn.token}#code`
+                                        const tokenName = await contract.contractName(txn.token)
+                                        const baseTokenSymbol = await contract.contractSymbol(txn.baseToken)
 
-                                        // sendNotification(message)
+                                        // await sendNotification(message.notEnoughLiquidity(txn.token, tokenName, txn.baseTokenLiquidityAmount, baseTokenSymbol, txnHash))
                                     }
-                                } else {
-                                    const tokenName = await contract.contractName(txn.token)
-                                    const baseTokenSymbol = await contract.contractSymbol(txn.baseToken)
-
-                                    // await sendNotification(message.notEnoughLiquidity(txn.token, tokenName, txn.baseTokenLiquidityAmount, baseTokenSymbol, txnHash))
                                 }
                             }
                         }

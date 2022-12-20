@@ -8,7 +8,7 @@ class RugChecker {
     async checkRugStatus(tokenAddress: string) {
         try {
 
-            console.log("Checking if a token is a Rug")
+            console.log("Checking if a token is a Rug ", tokenAddress)
 
             const { data } = await axios({
                 method: 'post',
@@ -17,8 +17,6 @@ class RugChecker {
                     tokenAddress: tokenAddress
                 }
             });
-
-            console.log("Rug status data : ", data)
 
             return data
         } catch (error) {
@@ -35,7 +33,7 @@ class RugChecker {
                 url: `https://api.etherscan.io/api?module=contract&action=getabi&address=${tokenAddress}&apikey=${config.ETHERSCAN_API_KEY} `,
             });
 
-            // console.log("Data ", data)
+            console.log("\nCheck contract verification response  ", data.message, data.result.substring(1, 100))
 
             if (data) {
                 if (data.result != "Contract source code not verified") {

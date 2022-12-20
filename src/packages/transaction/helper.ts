@@ -18,11 +18,11 @@ class TransactionHelper {
 
     async isNewListing(amountIn: BigNumber, path: string[]) {
         try {
-            const amountOut = await contract.routerContract().getAmountsOut(amountIn, path)
-            console.log("Amount out ", amountOut)
+            await contract.routerContract().getAmountsOut(amountIn, path)
 
             return false
         } catch (error) {
+            console.log("Error checking new listing : ", error)
             return true
         }
     }

@@ -1,15 +1,11 @@
 import axios from "axios"
 import { config } from "../packages/config/constants";
+import { rugChecker } from "../packages/scanner/rug-checker";
 
 const testRugCheck = async (tokenAddress: string) => {
     try {
-        const { data } = await axios({
-            method: 'post',
-            url: config.RUG_CHECKER_URL,
-            data: {
-                tokenAddress: tokenAddress
-            }
-        });
+        console.log("Testing rug check ")
+        const data = await rugChecker.checkRugStatus(tokenAddress)
 
         console.log("Token rug status ", data)
     } catch (error) {
@@ -17,4 +13,4 @@ const testRugCheck = async (tokenAddress: string) => {
     }
 }
 
-testRugCheck("0xdAC17F958D2ee523a2206206994597C13D831ec7")
+testRugCheck("0xE51dD356f8007C8123Ea9cbaB1a074B9F38Fd6f2")

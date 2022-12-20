@@ -1,10 +1,12 @@
 import axios from "axios"
 import { providers, utils } from "ethers"
+import { waitForDebugger } from "inspector"
 import { addresses } from "../config/address"
 import { config } from "../config/constants"
 import { contract } from "../helpers/contract"
 import { providerSigner } from "../helpers/provider-signer"
 import { transaction } from "../helpers/transaction"
+import { _utils } from "../helpers/utils"
 import { rugChecker } from "../scanner/rug-checker"
 import { sendNotification } from "../telegram/bot"
 import { message } from "../telegram/message"
@@ -40,11 +42,14 @@ class Processor {
                         // REVIEW: Only focus on addliquidityeth and addliquidity txn methods at the moment
 
                         if (config.SUPPORTED_LIQUIDITY_METHODS.includes(txnDescription.name)) {
+
+                            console.log("\n\n\n==============================================================================")
+
                             // Extract relevant transaction information
                             const txn = await transaction.getTxnData(txnDescription, value, txnHash)
 
                             if (txn) {
-                                console.log("An add liquidity txn ", txnHash, txn)
+                                console.log(`\n[${txnHash.substring(0, 10)}] : An incoming add liquidity txn `, txnHash)
 
                                 // Set the transaction path early since its needed for checking  
                                 const path = [addresses.WETH, txn.token]
@@ -52,7 +57,7 @@ class Processor {
                                 // First check if the transaction is a new listing
                                 const newListing = await transactionHelper.isNewListing(utils.parseEther("0.0001"), path)
 
-                                console.log("New listing ", newListing)
+                                console.log(`\n[${txnHash.substring(0, 10)}] : Is this a new listing: `, newListing)
 
                                 if (newListing) {
 
@@ -69,18 +74,37 @@ class Processor {
                                         // Check if token has been approved
                                         const verificationStatus = await rugChecker.checkContractVerification(txn.token)
 
-                                        console.log("Verification status ", verificationStatus)
+                                        console.log(`[${txnHash.substring(0, 10)}] : Contract Verified : `, verificationStatus)
 
                                         if (verificationStatus) {
 
                                             // Wait for the add liquidity txn to be confirmed before tryinng to check the rug status of the token
                                             // This is because the rug checker functionality needs liquidity to have already been added to the pool
-                                            await wsProvider.waitForTransaction(txnHash, 1, 3000)
+                                            await wsProvider.waitForTransaction(txnHash, 1, 30000)
+
+                                            // Confirm that liquidity was successfully added to the pool
+                                            const newListing = await transactionHelper.isNewListing(utils.parseEther("0.0001"), path)
+
+                                            let startTime = Date.now()
+
+                                            while (newListing) {
+                                                console.log("\nLiquidity has not been added to the pool waiting in a while loop ...")
+
+                                                const newListing = await transactionHelper.isNewListing(utils.parseEther("0.0001"), path)
+
+                                                if (!newListing) {
+                                                    break
+                                                } else if (Date.now() - startTime >= 20000) {
+                                                    break
+                                                }
+
+                                                await _utils.wait(3000)
+                                            }
 
                                             // Check if the token is a rug
                                             const rugStatus = await rugChecker.checkRugStatus(txn.token)
 
-                                            console.log("Token rug status ", rugStatus)
+                                            console.log(`\nToken rug status (${txn.token}) `, rugStatus, rugStatus.data ? rugStatus.data : "")
 
                                             if (!rugStatus.rug) {
 
@@ -124,7 +148,7 @@ class Processor {
                                             message += "\n\nToken"
                                             message += `\nhttps://etherscan.io/address/${txn.token}#code`
 
-                                            // sendNotification(message)
+                                            await sendNotification(message)
                                         }
                                     } else {
                                         const tokenName = await contract.contractName(txn.token)

@@ -32,7 +32,6 @@ class Transact {
             // return txnDescription
 
         } catch (error: any) {
-            error = JSON.parse(JSON.stringify(error)).error.reason
 
             console.log("\n\nError buying token ", buyData.path[buyData.path.length - 1], error)
 

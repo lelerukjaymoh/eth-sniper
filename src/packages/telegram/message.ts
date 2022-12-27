@@ -50,11 +50,13 @@ class Message {
     return message
   }
 
-  successfulBuy(tokenAddress: string, tokenName: string, txHash: string) {
+  successfulBuy(tokenAddress: string, tokenName: string, txHash: string, liquidityAmount: number, baseToken: string) {
     let message = "Successful BUY Txn"
     message += `\n\n${tokenName}`
     message += "\n\nToken address"
     message += `\nhttps://etherscan.io/address/${tokenAddress}`
+    message += "\n\nLiquidity Added"
+    message += `\n${liquidityAmount} ${baseToken}`
     message += "\n\nTxn Hash"
     message += `\nhttps://etherscan.io/tx/${txHash}`
 
@@ -67,6 +69,16 @@ class Message {
     message += `\n\nToken`
     message += `\n${tokenName}`
     message += `\n\nhttps://honeypot.is/ethereum?address=${tokenAddress}`
+
+    return message
+  }
+
+  contractNotVerified(contractName: string, tokenAddress: string) {
+    let message = "Token contract code not verified"
+    message += "\n\nToken Name"
+    message += `${contractName}`
+    message += "\n\nToken"
+    message += `\nhttps://etherscan.io/address/${tokenAddress}#code`
 
     return message
   }

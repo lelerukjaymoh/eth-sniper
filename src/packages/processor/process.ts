@@ -91,23 +91,28 @@ class Processor {
                                             await wsProvider.waitForTransaction(txnHash, 1, 30000)
 
                                             // Confirm that liquidity was successfully added to the pool
-                                            const newListing = await transactionHelper.isNewListing(routerAddress, utils.parseEther("0.0001"), path)
+                                            const _newListing = await transactionHelper.isNewListing(routerAddress, utils.parseEther("0.0001"), path)
+
+                                            console.log("2nd New listing check ", _newListing)
 
                                             let startTime = Date.now()
 
-                                            while (newListing) {
+                                            while (_newListing) {
                                                 console.log("\nLiquidity has not been added to the pool waiting in a while loop ...")
 
-                                                const newListing = await transactionHelper.isNewListing(routerAddress, utils.parseEther("0.0001"), path)
+                                                const newListingCheck = await transactionHelper.isNewListing(routerAddress, utils.parseEther("0.0001"), path)
 
-                                                if (!newListing) {
+                                                if (!newListingCheck) {
                                                     break
                                                 } else if (Date.now() - startTime >= 20000) {
+                                                    console.log("\n Liquidity not add yet. Waited for 20 secs, will proceed and disregard the token")
                                                     break
                                                 }
 
                                                 await _utils.wait(3000)
                                             }
+
+                                            console.log("\nNow checking rug ...")
 
                                             // Check if the token is a rug
                                             const rugStatus = await rugChecker.checkRugStatus(txn.token)
@@ -139,8 +144,9 @@ class Processor {
                                                     const txnDescription = await transact.buy(routerAddress, buyData)
 
                                                     const tokenName = await contract.contractName(txn.token)
+                                                    const baseTokenName = await contract.contractName(txn.baseToken)
 
-                                                    await sendNotification(message.successfulBuy(txn.token, tokenName, "HOLDER", txn.baseTokenLiquidityAmount, txn.baseToken))
+                                                    await sendNotification(message.successfulBuy(txn.token, tokenName, "HOLDER", txn.baseTokenLiquidityAmount, baseTokenName))
                                                 }
 
                                             } else {

@@ -15,8 +15,12 @@ class _Contract {
         return new Contract(contractAddress, tokenABI, providerSigner.wsProvider)
     }
 
-    routerContract(): Contract {
+    uniswapRouterContract(): Contract {
         return new Contract(config.UNISWAP_ROUTER_ADDRESS, routerABI, providerSigner.signer)
+    }
+
+    sushiRouterContract(): Contract {
+        return new Contract(config.SUSHISWAP_ROUTER_ADDRESS, routerABI, providerSigner.signer)
     }
 
     async contractName(tokenAddress: string) {

@@ -1,3 +1,4 @@
+import { config } from "../config/constants"
 import { contract } from "../helpers/contract"
 import { BuyData } from "../helpers/types"
 import { sendNotification } from "../telegram/bot"
@@ -6,12 +7,19 @@ import { message } from "../telegram/message"
 class Transact {
     constructor() { }
 
-    async buy(buyData: BuyData) {
+    async buy(routerAddress: string, buyData: BuyData) {
         try {
 
             console.log("Buy data  ", buyData)
 
-            const txnResponse = await contract.routerContract().callStatic.swapExactETHForTokens(
+            let _contract;
+
+            // Send the transaction to the right contract
+            routerAddress == config.UNISWAP_ROUTER_ADDRESS.toLowerCase() ?
+                _contract = contract.uniswapRouterContract :
+                _contract = contract.sushiRouterContract
+
+            const txnResponse = await _contract().callStatic.swapExactETHForTokens(
                 buyData.amountOutMin,
                 buyData.path,
                 buyData.to,

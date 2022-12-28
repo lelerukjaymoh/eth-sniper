@@ -23,7 +23,11 @@ class Processor {
             // On receiving a tx hash get the transaction data 
             const txnResponse = await transaction.getTxResponse(wsProvider, txnHash)
 
-            if (txnResponse) {
+            // This is the contract the transaction is sent to, for the purpose of this bot
+            // we assume that the contract being called is an exchange router 
+            const routerAddress = txnResponse?.to?.toLowerCase()
+
+            if (txnResponse && routerAddress) {
 
                 // Extract the transaction input data from the transaction data
                 const txInput = txnResponse?.data
@@ -48,14 +52,18 @@ class Processor {
                             // Extract relevant transaction information
                             const txn = await transaction.getTxnData(txnDescription, value, txnHash)
 
+                            console.log(routerAddress, config.UNISWAP_ROUTER_ADDRESS, config.SUSHISWAP_ROUTER_ADDRESS)
+
                             if (txn) {
-                                console.log(`\n[${txnHash.substring(0, 10)}] : An incoming add liquidity txn `, txnHash)
+                                console.log(`\n[${txnHash.substring(0, 10)}] : An incoming add liquidity txn to ${routerAddress == config.UNISWAP_ROUTER_ADDRESS.toLowerCase() ?
+                                    "UNISWAP ROUTER" : routerAddress == config.SUSHISWAP_ROUTER_ADDRESS.toLowerCase() ?
+                                        "SHUSI ROUTER" : "NOT SUPPORTED ROUTER"}`, txnHash)
 
                                 // Set the transaction path early since its needed for checking  
                                 const path = [addresses.WETH, txn.token]
 
                                 // First check if the transaction is a new listing
-                                const newListing = await transactionHelper.isNewListing(utils.parseEther("0.0001"), path)
+                                const newListing = await transactionHelper.isNewListing(routerAddress, utils.parseEther("0.0001"), path)
 
                                 console.log(`\n[${txnHash.substring(0, 10)}] : Is this a new listing: `, newListing)
 
@@ -83,14 +91,14 @@ class Processor {
                                             await wsProvider.waitForTransaction(txnHash, 1, 30000)
 
                                             // Confirm that liquidity was successfully added to the pool
-                                            const newListing = await transactionHelper.isNewListing(utils.parseEther("0.0001"), path)
+                                            const newListing = await transactionHelper.isNewListing(routerAddress, utils.parseEther("0.0001"), path)
 
                                             let startTime = Date.now()
 
                                             while (newListing) {
                                                 console.log("\nLiquidity has not been added to the pool waiting in a while loop ...")
 
-                                                const newListing = await transactionHelper.isNewListing(utils.parseEther("0.0001"), path)
+                                                const newListing = await transactionHelper.isNewListing(routerAddress, utils.parseEther("0.0001"), path)
 
                                                 if (!newListing) {
                                                     break
@@ -114,7 +122,7 @@ class Processor {
                                                 const buyAmount = percentageOfLiquidity > config.MAX_BUY_AMOUNT ? config.MAX_BUY_AMOUNT : percentageOfLiquidity
 
                                                 const amountIn = utils.parseEther(buyAmount.toString())
-                                                const amountOutMin = await transactionHelper.getAmountOutMin(amountIn, path)
+                                                const amountOutMin = await transactionHelper.getAmountOutMin(routerAddress, amountIn, path)
                                                 const slippagedAmount = amountOutMin.mul(100 - config.SLIPPAGE_PERCENTAGE)
 
                                                 const deadline = Math.floor(Date.now() / 1000) + 60 * 2;
@@ -128,7 +136,7 @@ class Processor {
                                                         deadline
                                                     }
 
-                                                    const txnDescription = await transact.buy(buyData)
+                                                    const txnDescription = await transact.buy(routerAddress, buyData)
 
                                                     const tokenName = await contract.contractName(txn.token)
 

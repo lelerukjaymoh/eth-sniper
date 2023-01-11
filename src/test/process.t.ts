@@ -3,6 +3,7 @@ import { processor } from "../packages/processor/process"
 
 const testProcessingTransaction = (txnHash: string) => {
     try {
+        console.log("Testing txn processing ...")
         processor.processTxn(txnHash, providerSigner.wsProvider)
     } catch (error) {
         console.log("Error testing txn processing ", error)
@@ -10,4 +11,4 @@ const testProcessingTransaction = (txnHash: string) => {
 }
 
 
-testProcessingTransaction("0x35e6e3aa83bf30df8759ef07769ac02b1b606fb32c769cb452f2dc4975e55c15")
+testProcessingTransaction("0xfc0aa034e43b4cc45916f1c76a35577a51db73fa3ac13cc2b0a609b4ee630f02")

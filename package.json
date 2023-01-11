@@ -10,6 +10,7 @@
     "dev": "ts-node-dev -r dotenv/config src/index.ts",
     "test:verification": "ts-node-dev -r dotenv/config src/test/testContractVerification.t.ts",
     "test:rug": "ts-node-dev -r dotenv/config src/test/rugcheck.t.ts",
+    "test:processing": "ts-node-dev -r dotenv/config src/test/process.t.ts",
     "prod": "pm2 start yarn --interpreter bash --watch --name eth-sniper -- dev"
   },
   "dependencies": {

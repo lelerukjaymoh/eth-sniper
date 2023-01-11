@@ -48,11 +48,10 @@ class Processor {
                         if (config.SUPPORTED_LIQUIDITY_METHODS.includes(txnDescription.name)) {
 
                             console.log("\n\n\n==============================================================================")
+                            console.log("\n\nTxn Hash : ", txnHash)
 
                             // Extract relevant transaction information
                             const txn = await transaction.getTxnData(txnDescription, value, txnHash)
-
-                            console.log(routerAddress, config.UNISWAP_ROUTER_ADDRESS, config.SUSHISWAP_ROUTER_ADDRESS)
 
                             if (txn) {
                                 console.log(`\n[${txnHash.substring(0, 10)}] : An incoming add liquidity txn to ${routerAddress == config.UNISWAP_ROUTER_ADDRESS.toLowerCase() ?
@@ -97,7 +96,7 @@ class Processor {
 
                                             let startTime = Date.now()
 
-                                            while (_newListing) {
+                                            while (true) {
                                                 console.log("\nLiquidity has not been added to the pool waiting in a while loop ...")
 
                                                 const newListingCheck = await transactionHelper.isNewListing(routerAddress, utils.parseEther("0.0001"), path)
@@ -109,7 +108,7 @@ class Processor {
                                                     break
                                                 }
 
-                                                await _utils.wait(3000)
+                                                await _utils.wait(2000)
                                             }
 
                                             console.log("\nNow checking rug ...")

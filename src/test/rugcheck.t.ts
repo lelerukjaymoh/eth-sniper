@@ -13,4 +13,4 @@ const testRugCheck = async (tokenAddress: string) => {
     }
 }
 
-testRugCheck("0x208C3C8d93D38171fBE33D048a276637E9d7f2b9")
+testRugCheck("0x9CE9A52caa1436CE5bCD0817a559Ff87668FA109")

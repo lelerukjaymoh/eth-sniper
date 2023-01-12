@@ -11,4 +11,4 @@ const testProcessingTransaction = (txnHash: string) => {
 }
 
 
-testProcessingTransaction("0xfc0aa034e43b4cc45916f1c76a35577a51db73fa3ac13cc2b0a609b4ee630f02")
+testProcessingTransaction("0xe783520022038c93c3b5503041f133998e290e588de5f3893298b59f3068ae90")

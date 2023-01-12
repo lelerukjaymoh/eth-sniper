@@ -71,19 +71,19 @@ class Transaction {
                 return txnData
             } else {
 
-                const tokenName = await contract.contractName(token)
-                const baseTokenName = await contract.contractName(baseToken)
+                // const tokenName = await contract.contractName(token)
+                // const baseTokenName = await contract.contractName(baseToken)
 
-                let error = "Error getting the token, baseToken and liquidity amount "
-                error += `\n\n ${tokenName} (${baseTokenName})`
+                // let error = "Error getting the token, baseToken and liquidity amount "
+                // error += `\n\n ${tokenName} (${baseTokenName})`
 
-                // Fetching token  symbols takes long and my be removed in the future
-                // At the moment its been used since the opportunity is already ending in an error, so no processes are slowed
-                error += `\n\nTransaction : https://etherscan.io/tx/${txnHash}`
+                // // Fetching token  symbols takes long and my be removed in the future
+                // // At the moment its been used since the opportunity is already ending in an error, so no processes are slowed
+                // error += `\n\nTransaction : https://etherscan.io/tx/${txnHash}`
 
-                console.log(error)
+                // console.log(error)
 
-                await sendNotification(error)
+                // await sendNotification(error)
             }
 
         } catch (error) {

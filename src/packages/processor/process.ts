@@ -149,9 +149,9 @@ class Processor {
                                                 }
 
                                             } else {
-                                                const tokenName = await contract.contractName(txn.token)
+                                                // const tokenName = await contract.contractName(txn.token)
 
-                                                await sendNotification(message.rugToken(txn.token, tokenName))
+                                                // await sendNotification(message.rugToken(txn.token, tokenName))
                                             }
 
                                         } else {

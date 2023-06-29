@@ -19,7 +19,7 @@ class Message {
     message += "\n\nToken address"
     message += `\nhttps://etherscan.io/address/${tokenAddress}`
     message += "\n\nLiquidity Amount"
-    message += `\n${liquidity} ${baseTokenSymbol}`
+    message += `\n${liquidity.toFixed(2)} ${baseTokenSymbol}`
     message += "\n\nAdd liquidity Txn"
     message += `\nhttps://etherscan.io/tx/${addLiquidityTxnHash}`
 
